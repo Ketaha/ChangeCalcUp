@@ -2,19 +2,15 @@
 // Contains the final number of currency that shall be returned
 Dictionary<Decimal, Int32> CountOfFiat = new();
 
-// Multipliers for denominations
-IEnumerable<Decimal> Multipliers = new Decimal[4] { 10, 1, 0.1m, 0.01m };
-
 // |> Single or multiple inputs may be given. They are then summed and that's how we get a tally of what is owed
 Console.Write("How much money was spent?: ");
-var spentMoney = Console.ReadLine().Trim().Split().Select(decimal.Parse).ToArray().Sum();
+var spentMoney = ExchangeSum();
 
 Console.Write("How much money was paid?: ");
-var givenMoney = Console.ReadLine().Trim().Split().Select(decimal.Parse).ToArray().Sum();
+var givenMoney = ExchangeSum();
 
-var change = givenMoney - spentMoney; // We get the total of what should be returned
-
-for (byte i = 0; (i < 4) && (change > 0.009m); i++)
+for ((int i, decimal change, IEnumerable<Decimal> Multipliers) = (0, givenMoney - spentMoney, new Decimal[4] { 10, 1, 0.1m, 0.01m });
+     (i < 4) && (change > 0.009m); i++)
 {
     var denomination = new Stack<Decimal>(new Decimal[3] { 1, 2, 5 });
 
@@ -50,4 +46,8 @@ void AddElement(decimal immediateElement)
 {
     if (!CountOfFiat.ContainsKey(immediateElement)) CountOfFiat.Add(immediateElement, 1);
     else CountOfFiat[immediateElement]++;
+}
+
+decimal ExchangeSum() {
+    return Console.ReadLine().Trim().Split().Select(decimal.Parse).ToArray().Sum();
 }
