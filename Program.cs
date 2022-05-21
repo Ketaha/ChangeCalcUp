@@ -1,7 +1,9 @@
-﻿// |> Repos
+﻿Console.Title = "Change Calculator";
+// Contains the final number of currency that shall be returned
 Dictionary<Decimal, Int32> CountOfFiat = new();
-Decimal[] Multipliers = new Decimal[4] { 10, 1, 0.1m, 0.01m };
-Console.Title = "Change Calculator";
+
+// Multipliers for denominations
+IEnumerable<Decimal> Multipliers = new Decimal[4] { 10, 1, 0.1m, 0.01m };
 
 // |> Single or multiple inputs may be given. They are then summed and that's how we get a tally of what is owed
 Console.Write("How much money was spent?: ");
@@ -12,38 +14,29 @@ var givenMoney = Console.ReadLine().Trim().Split().Select(decimal.Parse).ToArray
 
 var change = givenMoney - spentMoney; // We get the total of what should be returned
 
-while (change > 0.009m)
+for (byte i = 0; (i < 4) && (change > 0.009m); i++)
 {
-    for (int i = 0; i < 4; i++)
+    var denomination = new Stack<Decimal>(new Decimal[3] { 1, 2, 5 });
+
+    // If there are any elements in the stack we itterate through it, else we just move to the other multipliers
+    // untill we eventually find one that fullfils the prerequisites
+    while (denomination.Any())
     {
-        var denomination = new Stack<decimal>(new decimal[3] { 1, 2, 5 });
+        var immediateElement = denomination.Peek() * Multipliers.ElementAt(i);
+        
+        // Elements are popped until a viable option is reached
+        if (immediateElement > change) denomination.Pop();
 
-        // If there are any elements in the stack we itterate through it, else we just move to the other multipliers
-        // untill we eventually find one that fullfils the prerequisites
-        while (denomination.Any())
+        else
         {
-            var immediateElement = denomination.Peek() * Multipliers[i];
+            // If a denomination passes it is added to dictionary along with the number of times it has to be given
+            AddElement(immediateElement);
 
-            if (immediateElement > change) // Elements are popped until a viable option is reached
-                denomination.Pop();
+            // ... and is then subtracted from the total change
+            change -= immediateElement;
 
-            else
-            {
-                if (!CountOfFiat.ContainsKey(immediateElement)) // If an element passes the if it is added to dictionary
-                {
-                    CountOfFiat.Add(immediateElement, 1);
-                }
-                else
-                {
-                    CountOfFiat[immediateElement]++;
-                }
-
-                // ... and is then subtracted from the total change
-                change -= immediateElement;
-
-                // ... lastly index of multipliers is reset
-                i = 0x0;
-            }
+            // ... lastly index of multipliers is reset
+            i = 0;
         }
     }
 }
@@ -51,5 +44,10 @@ while (change > 0.009m)
 // |> Final output presented in a dictionary. The fiat that must be returned and its number
 Console.OutputEncoding = Encoding.Unicode;
 CountOfFiat.ToList().ForEach(x => Console.WriteLine($"{x.Key} {(x.Key >= 1 ? "лв." : "ст.")} - {x.Value}"));
-Console.WriteLine("Total sum of change {0:C2}", CountOfFiat.Keys.Sum());
-Console.ReadKey();
+Console.WriteLine("{0} лв./ст. total change", givenMoney - spentMoney);
+
+void AddElement(decimal immediateElement)
+{
+    if (!CountOfFiat.ContainsKey(immediateElement)) CountOfFiat.Add(immediateElement, 1);
+    else CountOfFiat[immediateElement]++;
+}
