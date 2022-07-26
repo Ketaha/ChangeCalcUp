@@ -10,8 +10,10 @@ Console.Write("How much money was paid?: ");
 var givenMoney = ExchangeSum();
 
 var change = givenMoney - spentMoney;
+var initChange = change;
 
-for ((int i, IEnumerable<Decimal> Multipliers) = (0, new Decimal[4] { 10, 1, 0.1m, 0.01m });(i < 4) && (change > 0.009m); i++)
+for ((int i, IEnumerable<Decimal> Multipliers) = (0, new Decimal[4] { 10, 1, 0.1m, 0.01m });
+    (i < 4) && (change > 0.009m); i++)
 {
     var denomination = new Stack<Decimal>(new Decimal[3] { 1, 2, 5 });
 
@@ -41,11 +43,11 @@ for ((int i, IEnumerable<Decimal> Multipliers) = (0, new Decimal[4] { 10, 1, 0.1
 // |> Final output presented in a dictionary. The fiat that must be returned and its number
 Console.OutputEncoding = Encoding.Unicode;
 CountOfFiat.ToList().ForEach(x => Console.WriteLine($"{x.Key} {(x.Key >= 1 ? "лв." : "ст.")} - {x.Value}"));
-Console.WriteLine("{0} лв./ст. total change", change);
+Console.WriteLine("{0:C2} total change", initChange);
 
 void AddElement(decimal immediateElement) {
     if (!CountOfFiat.ContainsKey(immediateElement)) CountOfFiat.Add(immediateElement, 1);
     else CountOfFiat[immediateElement]++;
 }
 
-decimal ExchangeSum() => Console.ReadLine().Trim().Split().Select(decimal.Parse).ToArray().Sum();
+static decimal ExchangeSum() => Console.ReadLine().Trim().Split().Select(decimal.Parse).ToArray().Sum();
